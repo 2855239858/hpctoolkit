@@ -69,7 +69,7 @@
 # We do not want the standard GNU files (NEWS README AUTHORS ChangeLog...)
 AUTOMAKE_OPTIONS = foreign
 
-TESTS = run-sort
+TESTS = run-sort unit.sh
 
 check_PROGRAMS = sort
 
