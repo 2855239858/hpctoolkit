@@ -46,7 +46,7 @@ from . import ver4
 
 from .enums import FileType
 from .exceptions import MajorVersionError, FormatError
-from .magic import Magic
+from .header import Magic
 from .util import viewof, ViewSlice
 
 from typing import Optional, Any

@@ -45,7 +45,7 @@
 from ..common import FormatSpecification
 from ..enums import FileType
 from ..exceptions import ValidationError, FutureVersionWarning
-from ..magic import Magic
+from ..header import Magic
 
 from typing import Optional, Any
 from warnings import warn

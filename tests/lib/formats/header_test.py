@@ -43,11 +43,11 @@
 # ******************************************************* EndRiceCopyright *
 
 from .exceptions import ValidationError
-from .magic import Magic
+from .header import Magic
 
 import pytest
 
-def test_basic():
+def test_magic():
   # Ensure all the elements are where they're supposed to be
   m = Magic(b'ABCDEFGHIJxyzw\x07\x10')
   assert m.magic == b'ABCDEFGHIJ'
