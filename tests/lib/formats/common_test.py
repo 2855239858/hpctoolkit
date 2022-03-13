@@ -69,9 +69,11 @@ def test_formattedbytes():
   assert fb[0] == b'foofoo'
   # Test blank value handling
   fb = FormattedBytes(b, '6s6s', blank=True)
+  assert fb.isblank(1)
   with pytest.raises(ValueError, match=r'^Attempt to access blank field'):
     fb[1]
   fb[1] = b'foobar'
+  assert fb.isblank(0)
   with pytest.raises(ValueError, match=r'^Attempt to access blank field'):
     fb[0]
   with pytest.raises(ValueError, match=r'^Attempt to access blank field'):

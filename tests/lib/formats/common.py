@@ -44,7 +44,7 @@
 
 from .util import viewof, ViewSlice
 
-from typing import Any, Optional, Type, Union, TypeVar
+from typing import Any, Optional, Union
 from collections.abc import Callable
 from struct import Struct
 
@@ -90,6 +90,11 @@ class FormattedBytes:
         self._blank = [True] * len(values)
       self._blank[idx] = False
 
+  def isblank(self, idx: int) -> bool:
+    if isinstance(self._blank, bool):
+      return self._blank
+    return self._blank[idx]
+
   @staticmethod
   def property(fn):
     """
@@ -106,7 +111,6 @@ class FormattedBytes:
       fb[idx] = value
     return property(fget=getx, fset=setx, doc=fn.__doc__)
 
-T = TypeVar('T')
 
 class FormatSpecification:
   """
