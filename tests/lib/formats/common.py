@@ -63,7 +63,7 @@ class FormattedBytes:
       Create a new interpretation for the given series of bytes.
       Also supports views on file objects.
     """
-    self._struct = Struct(form)
+    self._struct = Struct('<'+form)
     self._bytes = viewof(viewsl)[:self._struct.size]
     assert len(self._bytes) == self._struct.size
     self._blank = blank

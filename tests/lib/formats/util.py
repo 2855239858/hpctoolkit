@@ -128,8 +128,11 @@ class ViewSlice:
         start, stop = sl.indices(sys.maxsize)[0], None
       else:
         start, stop, _ = sl.indices(sl.stop)
+        stop += self._slice.start
     else:
       start, stop, _ = sl.indices(self._slice.stop - self._slice.start)
+      stop += self._slice.start
+    start += self._slice.start
     return self.__class__(self, start=start, stop=stop)
 
   @property

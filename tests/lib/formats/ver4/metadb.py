@@ -45,32 +45,13 @@
 from ..common import FormatSpecification
 from ..enums import FileType
 from ..exceptions import ValidationError, FutureVersionWarning
-from ..header import Magic
+from ..header import FileHeader
 
 from typing import Optional, Any
 from warnings import warn
 
-class Header(FormatSpecification):
+class MetaDB(FileHeader, filetype = FileType.MetaDB, major=4, minor=0):
   """
     File header for the meta.db format, version 4.0.
   """
-  __slots__ = ['magic']
-  def __init__(self, *args, minor: Optional[int] = None, **kwargs) -> None:
-    super().__init__(*args, **kwargs)
-    self.magic = Magic(self._bytes, **self._kwargs)
-    if self._blank:
-      self.magic.format = FileType.MetaDB.value
-      self.magic.majorVersion = 4
-      self.magic.minorVersion = minor if minor is not None else 0
-    else:
-      if self.magic.minorVersion > 0:
-        warn(FutureVersionWarning(self.magic.majorVersion, self.magic.minorVersion, 0))
-
-  def validate(self):
-    self.magic.validate()
-    if FileType(self.magic.format) is not FileType.MetaDB:
-      raise ValidationError(f"Invalid format identifier for MetaDB: expected {FileType.MetaDB.value!r}, got {self.magic.format!r}")
-    return self
-
-  def __str__(self):
-    return f"MetaDB({self.magic.version()}, ...)"
+  pass

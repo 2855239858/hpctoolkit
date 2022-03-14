@@ -88,6 +88,8 @@ def test_base():
   assert v[1:].range == slice(1, 6)
   assert v[:-3].range == slice(0, 3)
   assert v[1,2].range == v[1:3].range
+  assert v[1:][1:].range == slice(2, 6)
+  assert v[1:4][1:].range == slice(2, 4)
   # Check widening operations
   assert v[1:3].widened.range == v.range
 

@@ -46,7 +46,7 @@ from . import ver4
 
 from .enums import FileType
 from .exceptions import MajorVersionError, FormatError
-from .header import Magic
+from .header import FileHeader
 from .util import viewof, ViewSlice
 
 from typing import Optional, Any
@@ -74,7 +74,7 @@ def open(src: Any, *, major: Optional[int] = None,
       major = _majorVersion
   else:
     # Parse the file itself for the arguments
-    magic = Magic(src, blank=False)
+    magic = FileHeader(src, blank=False)
     magic.validate()
     if major is not None:
       # Major versions have no compatibility, error if not as requested

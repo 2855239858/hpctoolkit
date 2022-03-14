@@ -42,29 +42,8 @@
 #
 # ******************************************************* EndRiceCopyright *
 
-from .metadb import Header
-
-from ..exceptions import FutureVersionWarning, ValidationError
+from .metadb import MetaDB
 
 import pytest
 import warnings
 
-def test_header_basic():
-  suffix = b'\x00' * 100
-  # Test the default value filling
-  b = bytearray(100)
-  Header(b, blank=True)
-  assert b.startswith(b'HPCTOOLKITmeta\x04\x00')
-  # Test the forward compatibility warning
-  with warnings.catch_warnings():
-    warnings.simplefilter('error')
-    Header(b'HPCTOOLKITmeta\x04\x00'+suffix)
-  with pytest.warns(FutureVersionWarning):
-    Header(b'HPCTOOLKITmeta\x04\xFF'+suffix)
-
-def test_header_validation():
-  with pytest.raises(ValidationError, match=r'^Invalid format identifier'):
-    Header(b'HPCTOOLKITprof\x04\x00').validate()
-  h = Header(b'HPCTOOLKITmeta\x04\x00')
-  assert h.validate() is h
-  assert str(h) == 'MetaDB(v4.0, ...)'

@@ -42,4 +42,4 @@
 #
 # ******************************************************* EndRiceCopyright *
 
-from .metadb import Header as MetaDB
+from .metadb import MetaDB
