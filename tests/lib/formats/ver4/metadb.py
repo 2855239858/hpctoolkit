@@ -42,16 +42,62 @@
 #
 # ******************************************************* EndRiceCopyright *
 
-from ..common import FormatSpecification
+from ..common import FormatSpecification, FormattedBytes
 from ..enums import FileType
-from ..exceptions import ValidationError, FutureVersionWarning
 from ..header import FileHeader
 
-from typing import Optional, Any
-from warnings import warn
+from itertools import count
 
 class MetaDB(FileHeader, filetype = FileType.MetaDB, major=4, minor=0):
   """
     File header for the meta.db format, version 4.0.
   """
-  pass
+  @FileHeader.section(0)
+  def general(self, src):
+    return GeneralPropertiesSec(src, minor=self.minorVersion, **self._kwargs)
+
+  def fixbounds(self):
+    self._general.fixbounds()
+
+def nullTerminated(sl):
+  stop = 0
+  for b in sl.view:
+    if b == 0: break
+    stop += 1
+  else:
+    raise ValueError(f"Unterminated string encountered")
+  return sl[:stop]
+
+class GeneralPropertiesSec(FormatSpecification):
+  """
+    Section header for the General Properties section, version 4.0.
+  """
+  def __init__(self, *args, minor: int = 0, **kwargs):
+    super().__init__(*args, **kwargs)
+    self._view = FormattedBytes(self._bytes, 'QQ', **self._kwargs)
+
+  @FormattedBytes.property
+  def pTitle(self): return self._view, 0
+  @FormattedBytes.property
+  def pDescription(self): return self._view, 1
+
+  @property
+  def title(self):
+    return nullTerminated(self._bytes[abs,self.pTitle:]).view.tobytes().decode('UTF-8')
+  @title.setter
+  def title(self, v: str):
+    v = bytes(str(v), 'UTF-8') + b'\x00'
+    self._bytes[abs,self.pTitle,len(v)].view[:] = v
+
+  @property
+  def description(self):
+    return nullTerminated(self._bytes[abs,self.pDescription:]).view.tobytes().decode('UTF-8')
+  @description.setter
+  def description(self, v: str):
+    v = bytes(str(v), 'UTF-8') + b'\x00'
+    self._bytes[abs,self.pDescription,len(v)].view[:] = v
+
+  def sectionBounds(self):
+    title = nullTerminated(self._bytes[abs,self.pTitle:]).range
+    description = nullTerminated(self._bytes[abs,self.pDescription:]).range
+    return slice(self._bytes.range.start, max(title.stop, description.stop) + 1)

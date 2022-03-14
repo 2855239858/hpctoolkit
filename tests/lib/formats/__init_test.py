@@ -69,8 +69,8 @@ def test_creation():
   suffix = b'\x00' * 100
   assert type(hpcopen(None, blank=True, major=4, format=FileType.MetaDB)) == ver4.MetaDB
   assert type(hpcopen(None, blank=True, format=FileType.MetaDB)) == ver4.MetaDB
-  assert type(hpcopen(b'HPCTOOLKITmeta\x04\x00', major=4)) == ver4.MetaDB
-  assert type(hpcopen(b'HPCTOOLKITmeta\x04\x00', format=FileType.MetaDB)) == ver4.MetaDB
+  assert type(hpcopen(b'HPCTOOLKITmeta\x04\x00'+suffix, major=4)) == ver4.MetaDB
+  assert type(hpcopen(b'HPCTOOLKITmeta\x04\x00'+suffix, format=FileType.MetaDB)) == ver4.MetaDB
 
 def test_autodetection():
   suffix = b'\x00' * 100

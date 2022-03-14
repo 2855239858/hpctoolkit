@@ -114,10 +114,26 @@ class ViewSlice:
       return sys.maxsize
     return int(self._slice.stop - self._slice.start)
 
-  def __getitem__(self, sl: Union[slice, tuple[int, int]]):
+  def __getitem__(self, sl):
     if isinstance(sl, tuple):
-      start, length = sl
-      sl = slice(start, start + length, None)
+      if len(sl) == 2:
+        if sl[0] is abs:
+          sl = sl[1]
+          start = max(sl.start - self._slice.start, 0)
+          stop = None if sl.stop is None else max(sl.stop - self._slice.start, 0)
+          sl = slice(start, stop, None)
+        else:
+          start, length = sl
+          sl = slice(start, start + length, None)
+      elif len(sl) == 3:
+        if sl[0] is not abs:
+          raise ValueError(f"Invalid index modifier: {sl[0]}")
+        _, start, length = sl
+        stop = max(start + length - self._slice.start, 0)
+        start = max(start - self._slice.start, 0)
+        sl = slice(start, stop, None)
+      else:
+        raise ValueError(f"Invalid size for tuple index: {len(sl)} is not <= 3")
     if not isinstance(sl, slice):
       raise TypeError(f"Invalid index for a ViewSlice: {type(sl)!r}")
     if sl.step is not None:

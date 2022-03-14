@@ -71,7 +71,7 @@ class SectionPointer(FormatSpecification):
 
   @property
   def real(self):
-    return self._fn(self._bytes.widened[self.ptr:])
+    return self._fn(self._bytes.widened[abs,self.ptr:])
   @real.setter
   def real(self, v):
     if not isinstance(v, FormatSpecification):
