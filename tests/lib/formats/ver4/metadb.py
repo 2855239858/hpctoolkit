@@ -56,7 +56,7 @@ class MetaDB(FileHeader, filetype = FileType.MetaDB, major=4, minor=0):
   def general(self, src):
     return GeneralPropertiesSec(src, minor=self.minorVersion, **self._kwargs)
 
-  def fixbounds(self):
+  def fixbounds(self) -> None:
     self._general.fixbounds()
 
 def nullTerminated(sl):
@@ -74,12 +74,12 @@ class GeneralPropertiesSec(FormatSpecification):
   """
   def __init__(self, *args, minor: int = 0, **kwargs):
     super().__init__(*args, **kwargs)
-    self._view = FormattedBytes(self._bytes, 'QQ', **self._kwargs)
+    self._hdr = FormattedBytes(self._bytes, 'QQ', **self._kwargs)
 
   @FormattedBytes.property
-  def pTitle(self): return self._view, 0
+  def pTitle(self): return self._hdr, 0
   @FormattedBytes.property
-  def pDescription(self): return self._view, 1
+  def pDescription(self): return self._hdr, 1
 
   @property
   def title(self):

@@ -51,6 +51,7 @@ def test_formattedbytes():
   # Test basic sequence-type operations
   b = bytearray(b'foobarfaaborXXX')
   fb = FormattedBytes(b, '6s6s')
+  assert fb.size == 12
   assert len(fb) == 2
   assert fb[0] == b'foobar'
   assert fb[1] == b'faabor'
@@ -61,12 +62,14 @@ def test_formattedbytes():
     fb['foo']
   with pytest.raises(IndexError):
     fb[2]
+
   # Test property wrapping
   @FormattedBytes.property
   def first(fb): return fb, 0
   assert first.__get__(fb) == b'barfoo'
   first.__set__(fb, b'foofoo')
   assert fb[0] == b'foofoo'
+
   # Test blank value handling
   fb = FormattedBytes(b, '6s6s', blank=True)
   assert fb.isblank(1)
@@ -86,10 +89,13 @@ def test_formatspec():
   fs = FormatSpecification()
   assert isinstance(fs._bytes, ViewSlice)
   assert fs._kwargs == {'blank': True}
-  with pytest.raises(NotImplementedError):
-    fs.validate()
+
   # Test the non-blank variant
   fs = FormatSpecification(bytearray(10))
   assert isinstance(fs._bytes, ViewSlice)
   assert fs._kwargs == {'blank': False}
+
+  # Test unimplemented methods
+  with pytest.raises(NotImplementedError):
+    fs.validate()
 

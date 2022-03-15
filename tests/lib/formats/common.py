@@ -68,6 +68,10 @@ class FormattedBytes:
     assert len(self._bytes) == self._struct.size
     self._blank = blank
 
+  @property
+  def size(self) -> int:
+    return self._struct.size
+
   def __len__(self) -> int:
     return len(self._struct.unpack(self._bytes.view))
 
