@@ -560,11 +560,20 @@ void MetaDB::write() try {
     // Since Contexts are 8-aligned and 8-sized, we don't need to seek in here
     src.contexts().citerate(nullptr, [&](const Context& c){
       if(c.children().empty()) return;
+      if(elide(c)) return;
 
       auto& udc = c.userdata[ud];
       std::vector<char> buf;
-      for(const Context& cc: c.children().citerate())
-        compose(cc, buf);
+      for(const Context& cc: c.children().citerate()) {
+        if(elide(cc)) {
+          for(const Context& gcc: cc.children().citerate()) {
+            assert(!elide(gcc) && "Recursion needed for this algorithm!");
+            compose(gcc, buf);
+          }
+        } else {
+          compose(cc, buf);
+        }
+      }
       udc.pChildren = cursor;
       f.write(buf.data(), buf.size());
       cursor += udc.szChildren = buf.size();
