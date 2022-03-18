@@ -103,8 +103,6 @@ MYLDFLAGS = \
 MYLDADD = \
 	@HOST_LIBTREPOSITORY@ \
 	$(HPCLIB_Analysis) \
-	$(HPCLIB_Banal_Simple) \
-	$(HPCLIB_ProfXML) \
 	$(HPCLIB_Prof) \
 	$(HPCLIB_Binutils) \
 	$(HPCLIB_ProfLean) \

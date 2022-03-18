@@ -86,9 +86,6 @@ writeAsText(/*destination,*/ const char* filenm, bool sm_easyToGrep);
 //YUMENG: second arg: if more flags, maybe build a struct to include all flags and pass the struct around
 
 void
-writeAsText_callpath(/*destination,*/ const char* filenm, bool sm_easyToGrep);
-
-void
 writeAsText_sparseDBtmp(const char* filenm, bool sm_easyToGrep); 
 
 bool 
@@ -117,9 +114,6 @@ writeAsText_callpathMetricDB(/*destination,*/ const char* filenm);
 
 void
 writeAsText_callpathTrace(/*destination,*/ const char* filenm);
-
-void
-writeAsText_flat(/*destination,*/ const char* filenm);
 
 } // namespace Raw
 
