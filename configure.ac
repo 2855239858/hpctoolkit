@@ -5703,7 +5703,6 @@ AC_CONFIG_FILES([ \
   src/tool/Makefile \
   src/tool/hpcfnbounds/Makefile \
   src/tool/hpcfnbounds2/Makefile \
-  src/tool/hpclump/Makefile \
   src/tool/hpcprof/Makefile \
   src/tool/hpcprof-mpi/Makefile \
   src/tool/hpcproftt/Makefile \
