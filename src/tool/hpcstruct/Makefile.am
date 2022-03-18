@@ -105,7 +105,6 @@ MYLDADD = \
 	$(HPCLIB_Prof) \
 	$(HPCLIB_Binutils) \
 	$(HPCLIB_ProfLean) \
-	$(HPCLIB_ISA) \
 	$(MY_LIB_XED) \
 	$(HPCLIB_XML) \
 	$(HPCLIB_Support) \
@@ -115,7 +114,6 @@ MYLDADD = \
 	$(MY_ELF_DWARF) \
 	@BINUTILS_LIBS@ \
 	$(IGC_LDFLGS) \
-	$(HPCLIB_gettext) \
 	$(LZMA_LDFLAGS_DYN) \
 	$(MBEDTLS_LIBS) \
 	$(TBB_LFLAGS)
