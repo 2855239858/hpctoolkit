@@ -74,6 +74,8 @@ def test_magic():
   assert m.majorVersion == 1
   assert m.minorVersion == 2
 
+  assert m._sec_kwargs == {'blank': True, 'minor': 2}
+
   # Ensure changes affect the backend memory
   b = bytearray(0x10)
   m = FileHeader(b)

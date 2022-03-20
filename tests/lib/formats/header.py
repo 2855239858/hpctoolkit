@@ -145,6 +145,12 @@ class FileHeader(FormatSpecification):
         cls.__sections__.append(value)
         delattr(cls, key)
 
+  @property
+  def _sec_kwargs(self):
+    kw = self._kwargs
+    kw['minor'] = self.minorVersion
+    return kw
+
   @FormattedBytes.property
   def magic(self): return self._view, 0
   @FormattedBytes.property

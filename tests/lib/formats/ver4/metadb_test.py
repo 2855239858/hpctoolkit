@@ -42,22 +42,26 @@
 #
 # ******************************************************* EndRiceCopyright *
 
-from .metadb import MetaDB, GeneralPropertiesSec
-
 import pytest
 import warnings
+
+from .metadb import MetaDB
 
 def test_metadb():
   m = MetaDB(bytearray(
     b'HPCTOOLKITmeta\x04\x00'                              # 0x000
     + bytes.fromhex('3000000000000000 0000000000000000')   # 0x010
+    + bytes.fromhex('3000000000000000 0000000000000000')   # 0x010
   ))
   assert type(m.general) is GeneralPropertiesSec
+  assert type(m.idNames) is IdentifierNamesSec
 
-def test_general():
+from .metadb import GeneralPropertiesSec
+
+def test_generalv0():
   b = bytearray(bytes.fromhex('1300000000000000 2000000000000000')
                 + b'\xFF'*3 + b'Title\x00' + b'\xFF'*7 + b'Description\x00')
-  gps = GeneralPropertiesSec(b)
+  gps = GeneralPropertiesSec(b, minor = 0)
   assert gps.pTitle == 0x13
   assert gps.pDescription == 0x20
   assert gps.title == 'Title'
@@ -72,9 +76,28 @@ def test_general():
 
   with pytest.raises(ValueError, match=r'^Unterminated string'):
     GeneralPropertiesSec(bytes.fromhex('1000000000000000 2000000000000000')
-                         + b'Unterminated').title
+                         + b'Unterminated', minor=0).title
   with pytest.raises(ValueError, match=r'^Unterminated string'):
     GeneralPropertiesSec(bytes.fromhex('1000000000000000 1200000000000000')
-                         + b'T\x00Unterminated').description
+                         + b'T\x00Unterminated', minor=0).description
 
   assert gps.sectionBounds() == slice(0, len(b))
+
+from .metadb import IdentifierNamesSec
+
+def test_idnamesv0():
+  b = bytearray(bytes.fromhex('1000000000000000 02 FFFFFFFFFFFFFF 3000000000000000 3400000000000000')
+                + b'\xFF'*16 + b'foo\x00bar\x00')
+  hins = IdentifierNamesSec(b, minor=0)
+  assert hins.ppNames == 0x10
+  assert hins.nKinds == 2
+  assert list(hins.pNames) == [0x30, 0x34]
+  assert list(hins.names) == ['foo', 'bar']
+
+  hins.pNames = [0x32, 0x35]
+  assert list(hins.names) == ['o', 'ar']
+
+  hins.pNames = [0x30, 0x34]
+  hins.names = ['ba', 'fo']
+  assert list(hins.names) == ['ba', 'fo']
+
