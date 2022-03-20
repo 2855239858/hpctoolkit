@@ -56,9 +56,6 @@ class MetaDB(FileHeader, filetype = FileType.MetaDB, major=4, minor=0):
   def general(self, src):
     return GeneralPropertiesSec(src, minor=self.minorVersion, **self._kwargs)
 
-  def fixbounds(self) -> None:
-    self._general.fixbounds()
-
 def nullTerminated(sl):
   stop = 0
   for b in sl.view:

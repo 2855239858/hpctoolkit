@@ -46,6 +46,8 @@ from .common import FormattedBytes, FormatSpecification
 from .enums import FileType
 from .exceptions import ValidationError, FutureVersionWarning
 
+from base64 import urlsafe_b64encode
+from random import randbytes
 from typing import Any, Optional
 from warnings import warn
 
@@ -121,6 +123,11 @@ class FileHeader(FormatSpecification):
       if self.minorVersion > self._maxMinorVersion:
         warn(FutureVersionWarning(self.majorVersion, self.minorVersion, self._maxMinorVersion))
 
+    # Initialize the sections
+    if type(self) is not FileHeader:
+      for s in type(self).__sections__:
+        s._init_hook(self)
+
   def __init_subclass__(cls, *, filetype: FileType = None, major: int = None,
                         minor: int = None, **kwargs):
     super().__init_subclass__(**kwargs)
@@ -129,6 +136,14 @@ class FileHeader(FormatSpecification):
     cls._fileType = FileType(filetype)
     cls._majorVersion = int(major)
     cls._maxMinorVersion = int(minor)
+
+    # Scan for specially-typed attributes and build a __sections__ table
+    cls.__sections__ = []
+    for key in list(dir(cls)):
+      value = getattr(cls, key)
+      if type(value) is FileHeader._Section:
+        cls.__sections__.append(value)
+        delattr(cls, key)
 
   @FormattedBytes.property
   def magic(self): return self._view, 0
@@ -154,7 +169,11 @@ class FileHeader(FormatSpecification):
         raise ValidationError(f"Invalid format identifier for {self._fileType.name}: expected {self._fileType.value!r}, got {self.format!r}")
     return self
 
-  def __str__(self):
+  def fixbounds(self) -> None:
+    for s in type(self).__sections__:
+      getattr(self, '_'+s._name).fixbounds()
+
+  def __str__(self) -> str:
     if self.__class__ is not FileHeader:
       name = self._fileType.name
       if self.format != self._fileType.value:
@@ -184,10 +203,11 @@ class FileHeader(FormatSpecification):
       SectionPointer object for the section itself. The other properties defer to
       this method.
     """
-    __slots__ = ['_fn', '_offset', '_minorVer']
+    __slots__ = ['_fn', '_offset', '_minorVer', '_name']
     _fn: Any
     _offset: int
     _minorVer: int
+    _name: str
 
     def __init__(self, fn: Any, idx: int, *, minor: int = 0) -> None:
       self._fn = fn
@@ -200,8 +220,16 @@ class FileHeader(FormatSpecification):
       """
       if not issubclass(cls, FileHeader):
         raise TypeError("Section can only be applied to methods in a FileHeader class!")  # pragma: no cover
+      sself._name = name
       _name = '_'+name
       Name = name[0].upper() + name[1:]
+
+      # Register as a specially-named attribute, which will be removed later
+      while True:
+        key = f'__FileHeader_section_{urlsafe_b64encode(randbytes(4))}'
+        if not hasattr(cls, key):  # pragma: no cover
+          setattr(cls, key, sself)
+          break
 
       # Add and overwrite the attributes
       def getsz(self):
@@ -222,14 +250,10 @@ class FileHeader(FormatSpecification):
         getattr(self, _name).real = v
       setattr(cls, name, property(getreal, setreal))
 
-      # Extend __init__ to fill the new bits
-      oldinit = cls.__init__
-      def newinit(self, *args, minor: Optional[int] = None, **kwargs):
-        oldinit(self, *args, minor=minor, **kwargs)
-        setattr(self, _name,
-                SectionPointer(lambda x: sself._fn(self, x), name,
-                               self._bytes[sself._offset:], **self._kwargs))
-      cls.__init__ = newinit
+    def _init_hook(sself, self):
+      setattr(self, '_'+sself._name,
+              SectionPointer(lambda x: sself._fn(self, x), sself._name,
+                             self._bytes[sself._offset:], **self._kwargs))
 
   @staticmethod
   def section(idx: int, *, minor: int = 0):

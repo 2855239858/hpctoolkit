@@ -148,14 +148,17 @@ def test_sectionpointer():
   assert sp.validate() is sp
 
 def test_sections():
+  class Bounded(FormatSpecification):
+    def sectionBounds(self):
+      return slice(self._bytes.range.start, self._bytes.range.start+4)
   class FooBar(FileHeader, filetype=FileType.ProfileDB, major=1, minor=2):
     __slots__ = ['_foo', '_bar']
     @FileHeader.section(0)
     def foo(self, src):
-      return FormatSpecification(src, **self._kwargs)
+      return Bounded(src, **self._kwargs)
     @FileHeader.section(1)
     def bar(self, src):
-      return FormatSpecification(src, **self._kwargs)
+      return Bounded(src, **self._kwargs)
   assert '_bar' in FooBar.__slots__
 
   # Check that parsing works as intended
@@ -167,12 +170,16 @@ def test_sections():
   assert f.szFoo == 0x07
   assert f.pBar == 0x30
   assert f.szBar == 0x08
-  assert type(f.foo) is FormatSpecification
-  assert type(f.bar) is FormatSpecification
+  assert type(f.foo) is Bounded
+  assert type(f.bar) is Bounded
 
   f.szFoo = 0x11
   assert b[0x10] == 0x11
   f.pFoo = 0x39
   assert b[0x18] == 0x39
-  f.bar = FormatSpecification(viewof(b)[0x10,10])
+  f.bar = Bounded(viewof(b)[0x10,10])
   assert f.pBar == 0x10
+
+  f.fixbounds()
+  assert f.szFoo == 4
+  assert f.szBar == 4

@@ -50,18 +50,9 @@ import warnings
 def test_metadb():
   m = MetaDB(bytearray(
     b'HPCTOOLKITmeta\x04\x00'                              # 0x000
-    + bytes.fromhex('0000000000000000 0000000000000000')   # 0x010
-    + b'PADDING_PADDING_'                                  # 0x020
-    + bytes.fromhex('4000000000000000 4600000000000000')   # 0x030
-    + b'Title\x00Descriptio'                               # 0x040
-    + b'n\x00'                                             # 0x042
+    + bytes.fromhex('3000000000000000 0000000000000000')   # 0x010
   ))
-  m.pGeneral = 0x30
   assert type(m.general) is GeneralPropertiesSec
-  assert m.general.title == 'Title'
-  assert m.szGeneral == 0
-  m.fixbounds()
-  assert m.szGeneral == 0x22
 
 def test_general():
   b = bytearray(bytes.fromhex('1300000000000000 2000000000000000')
