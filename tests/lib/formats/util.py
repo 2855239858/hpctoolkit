@@ -119,6 +119,10 @@ class ViewSlice:
       if len(sl) == 2:
         if sl[0] is abs:
           sl = sl[1]
+          if sl.start is not None and sl.start < self._slice.start:
+            raise ValueError(f"Request for data before start of ViewSlice: {sl.start} < {self._slice.start}")
+          if sl.stop is not None and sl.stop < self._slice.start:
+            raise ValueError(f"Request for data before start of ViewSlice: {sl.stop} < {self._slice.start}")
           start = max(sl.start - self._slice.start, 0)
           stop = None if sl.stop is None else max(sl.stop - self._slice.start, 0)
           sl = slice(start, stop, None)
@@ -129,6 +133,8 @@ class ViewSlice:
         if sl[0] is not abs:
           raise ValueError(f"Invalid index modifier: {sl[0]}")
         _, start, length = sl
+        if start < self._slice.start:
+          raise ValueError(f"Request for data before start of ViewSlice: {start} < {self._slice.start}")
         stop = max(start + length - self._slice.start, 0)
         start = max(start - self._slice.start, 0)
         sl = slice(start, stop, None)
@@ -147,7 +153,11 @@ class ViewSlice:
         stop += self._slice.start
     else:
       start, stop, _ = sl.indices(self._slice.stop - self._slice.start)
+      if sl.stop is not None and stop < sl.stop:
+        raise ValueError(f"Request for data off end of ViewSlice: {stop} < {sl.stop}")
       stop += self._slice.start
+    if sl.start is not None and start < sl.start:
+      raise ValueError(f"Request for data off end of ViewSlice: {start} < {sl.start}")
     start += self._slice.start
     return self.__class__(self, start=start, stop=stop)
 

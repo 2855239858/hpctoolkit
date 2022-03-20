@@ -162,7 +162,9 @@ def test_sections():
   assert '_bar' in FooBar.__slots__
 
   # Check that parsing works as intended
-  b = bytearray(b'HPCTOOLKITprof\x01\x01' + bytes.fromhex('0700000000000000 2000000000000000 0800000000000000 3000000000000000'))
+  b = bytearray(b'HPCTOOLKITprof\x01\x01'
+    + bytes.fromhex('0700000000000000 2000000000000000 0800000000000000 3000000000000000')
+    + b'\x00' * 10)
   f = FooBar(b)
   assert type(f._foo) is SectionPointer
   assert type(f._bar) is SectionPointer

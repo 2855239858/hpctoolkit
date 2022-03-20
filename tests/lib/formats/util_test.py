@@ -88,12 +88,24 @@ def test_base():
   assert v[1:].range == slice(1, 6)
   assert v[:-3].range == slice(0, 3)
   assert v[1,2].range == v[1:3].range
+  with pytest.raises(ValueError):
+    v[10:]
+  with pytest.raises(ValueError):
+    v[2:10]
   # Check subslicing operations
   assert v[1:][1:].range == slice(2, 6)
   assert v[1:4][1:].range == slice(2, 4)
-  assert v[2:4][abs,1:].range == slice(2, 4)
-  assert v[2:4][abs,1:3].range == slice(2, 3)
-  assert v[2:4][abs,1,2].range == slice(2, 3)
+  with pytest.raises(ValueError):
+    v[2:4][abs,1:]
+  with pytest.raises(ValueError):
+    v[2:4][abs,:1]
+  with pytest.raises(ValueError):
+    v[2:4][abs,2:5]
+  with pytest.raises(ValueError):
+    v[2:4][abs,1,3]
+  assert v[2:4][abs,2:].range == slice(2, 4)
+  assert v[2:4][abs,2:3].range == slice(2, 3)
+  assert v[2:4][abs,2,1].range == slice(2, 3)
   with pytest.raises(ValueError):
     v[1,2,3,4]
   with pytest.raises(ValueError):
