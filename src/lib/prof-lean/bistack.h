@@ -68,11 +68,15 @@
 // macros
 //*****************************************************************************
 
+#define bistack_macro_body_ignore(x) ;
+#define bistack_macro_body_show(x) x
+
+
 #define typed_bistack_declare(type) \
-  typed_bistack_functions(type, ignore)
+  typed_bistack_functions(type, bistack_macro_body_ignore)
 
 #define typed_bistack_impl(type) \
-  typed_bistack_functions(type, show)
+  typed_bistack_functions(type, bistack_macro_body_show)
 
 #define bistack_op(op) \
   bistack_ ## op
